@@ -42,8 +42,8 @@ public class ProfInterController {
 
 		model.addAttribute("lesAP", manager.getAllAPForProf());
 
-		DemandeValidationConsoTempsAccPers currentDctap = manager.getDVCTAPById(Long
-				.valueOf(id));
+		DemandeValidationConsoTempsAccPers currentDctap = manager
+				.getDVCTAPById(Long.valueOf(id));
 		if (currentDctap.getEtat() == 0 || currentDctap.getEtat() == 4
 				|| currentDctap.getEtat() > 1023) {
 			// valorise le bean de vue avec le dctap courant
@@ -89,24 +89,24 @@ public class ProfInterController {
 			return "prof-intervenant/edit";
 		else {
 
-			DemandeValidationConsoTempsAccPers dctapForUpdate = manager.getDVCTAPById(Long
-					.valueOf(formDctap.getId()));
+			DemandeValidationConsoTempsAccPers dctapForUpdate = manager
+					.getDVCTAPById(Long.valueOf(formDctap.getId()));
 
 			AccPersonalise acc = manager.getAPById(formDctap.getAccPersId());
 			String accPersNom = acc.getNom();
 
 			if (!dctapForUpdate.getDateAction().equals(
 					formDctap.getDateAction())
-					&& !dctapForUpdate.isDateModifiee()) {
-				dctapForUpdate.setDctapDateModif();
+					&& !dctapForUpdate.isDATE_MODIFIEE()) {
+				dctapForUpdate.modifieeDateParLeProfesseur();
 			}
 			if (!dctapForUpdate.getMinutes().equals(formDctap.getMinutes())
-					&& !dctapForUpdate.isDureeModifiee()) {
-				dctapForUpdate.setDctapDureeModif();
+					&& !dctapForUpdate.isDUREE_MODIFIEE()) {
+				dctapForUpdate.modifieeDureeParLeProfesseur();
 			}
 			if (!dctapForUpdate.getAccPers().getNom().equals(accPersNom)
-					&& !dctapForUpdate.isApModifiee()) {
-				dctapForUpdate.setDctapAccModif();
+					&& !dctapForUpdate.isAP_MODIFIEE()) {
+				dctapForUpdate.modifieeAPParLeProfesseur();
 			}
 
 			dctapForUpdate.setDateAction(formDctap.getDateAction());
@@ -122,13 +122,14 @@ public class ProfInterController {
 
 	@RequestMapping(value = "refuse/{id}", method = RequestMethod.GET)
 	public String refuseDCTAPById(@PathVariable String id, Model model) {
-		DemandeValidationConsoTempsAccPers dctap = manager.getDVCTAPById(Long.valueOf(id));
+		DemandeValidationConsoTempsAccPers dctap = manager.getDVCTAPById(Long
+				.valueOf(id));
 
 		// Test que la DCTAP appartient à la bonne personne
 		if (dctap.getProf().equals(UtilSession.getUserInSession())
 				&& (dctap.getEtat() == 0 || dctap.getEtat() == 4 || dctap
 						.getEtat() > 1023)) {
-			dctap.setDctapRefuse();
+			dctap.refuseeParLeProfesseur();
 			manager.updateDVCTAP(dctap);
 		}
 
@@ -137,12 +138,13 @@ public class ProfInterController {
 
 	@RequestMapping(value = "valid/{id}", method = RequestMethod.GET)
 	public String validDCTAPById(@PathVariable String id, Model model) {
-		DemandeValidationConsoTempsAccPers dctap = manager.getDVCTAPById(Long.valueOf(id));
+		DemandeValidationConsoTempsAccPers dctap = manager.getDVCTAPById(Long
+				.valueOf(id));
 
 		// Test que la DCTAP appartient à la bonne personne
 		if (dctap.getProf().equals(UtilSession.getUserInSession())
 				&& (dctap.getEtat() == 0 || dctap.getEtat() == 4)) {
-			dctap.setDctapValide();
+			dctap.valideeParLeProfesseur();
 			manager.updateDVCTAP(dctap);
 		}
 

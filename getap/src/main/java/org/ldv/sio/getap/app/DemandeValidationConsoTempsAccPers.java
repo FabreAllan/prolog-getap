@@ -9,6 +9,13 @@ import java.sql.Date;
  */
 
 public class DemandeValidationConsoTempsAccPers {
+	private static final int demande_creer_eleve = 0;
+	private static final int demande_accepter_eleve = 1;
+	private static final int demande_rejet_eleve = 2;
+	private static final int demande_modif_eleve = 4;
+	private static final int demande_annul_eleve = 8;
+	private static final int demande_valid_prof = 32;
+	private static final int demande_refus_prof = 64;
 	private static final int DATE_MODIFIEE = 1024;
 	private static final int DUREE_MODIFIEE = 2048;
 	private static final int AP_MODIFIEE = 4096;
@@ -47,6 +54,10 @@ public class DemandeValidationConsoTempsAccPers {
 	 * 
 	 */
 	private int etat;
+
+	public boolean isEtatInitial() {
+		return this.etat == 0;
+	}
 
 	/**
 	 * constructeur par défaut
@@ -169,56 +180,161 @@ public class DemandeValidationConsoTempsAccPers {
 		this.etat = etat;
 	}
 
-	public boolean isDateModifiee() {
-		return (this.etat & DATE_MODIFIEE) != 0;
+	public boolean isdemande_creer_eleve() {
+		return ((this.etat & demande_creer_eleve) != 0);
 	}
 
-	public boolean isDureeModifiee() {
-		return (this.etat & DUREE_MODIFIEE) != 0;
+	public boolean isdemande_accepter_eleve() {
+		return ((this.etat & demande_accepter_eleve) != 0);
 	}
 
-	public boolean isApModifiee() {
-		return (this.etat & AP_MODIFIEE) != 0;
+	public boolean isdemande_rejet_eleve() {
+		return ((this.etat & demande_rejet_eleve) != 0);
 	}
 
-	public void setDtapInitial() {
-		this.etat = 0;
+	public boolean isdemande_modif_eleve() {
+		return ((this.etat & demande_modif_eleve) != 0);
 	}
 
-	public void setDctapConfirme() {
-		this.etat = 1;
+	public boolean isdemande_annul_eleve() {
+		return ((this.etat & demande_annul_eleve) != 0);
 	}
 
-	public void setDctapRejete() {
-		this.etat = 2;
+	public boolean isdemande_valid_prof() {
+		return ((this.etat & demande_valid_prof) != 0);
 	}
 
-	public void setDctapModifEleve() {
-		this.etat = 4;
+	public boolean isdemande_refus_prof() {
+		return ((this.etat & demande_refus_prof) != 0);
 	}
 
-	public void setDctapAnnule() {
-		this.etat = 8;
+	public boolean isDATE_MODIFIEE() {
+		return ((this.etat & DATE_MODIFIEE) != 0);
 	}
 
-	public void setDctapValide() {
-		this.etat = 32;
+	public boolean isDUREE_MODIFIEE() {
+		return ((this.etat & DUREE_MODIFIEE) != 0);
 	}
 
-	public void setDctapRefuse() {
-		this.etat = 64;
+	public boolean isAP_MODIFIEE() {
+		return ((this.etat & AP_MODIFIEE) != 0);
 	}
 
-	public void setDctapDateModif() {
-		this.etat = this.getEtat() + 1024;
+	public void valideeParLeProfesseur() throws DVCTAPException {
+		if (!this.isdemande_annul_eleve() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_valid_prof()) {
+			this.etat = this.etat | demande_valid_prof;
+		} else {
+			throw new DVCTAPException("Erreur de validation du professeur !");
+		}
 	}
 
-	public void setDctapDureeModif() {
-		this.etat = this.getEtat() + 2048;
+	public void refuseeParLeProfesseur() throws DVCTAPException {
+		if (!this.isdemande_annul_eleve() && !this.isdemande_valid_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_refus_prof()) {
+			this.etat = this.etat | demande_rejet_eleve;
+		} else {
+			throw new DVCTAPException("Erreur de refus du professeur !");
+		}
 	}
 
-	public void setDctapAccModif() {
-		this.etat = this.getEtat() + 4096;
+	public void annuleeParEleve() throws DVCTAPException {
+		if (!this.isdemande_valid_prof() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve() && !this.isAP_MODIFIEE()
+				&& !this.isDUREE_MODIFIEE() && !this.isDATE_MODIFIEE()
+				&& !this.isdemande_annul_eleve()) {
+			this.etat = this.etat | demande_annul_eleve;
+		} else {
+			throw new DVCTAPException("Erreur d'annulation de l'élève !");
+		}
+	}
+
+	public void modifieeParEleve() throws DVCTAPException {
+		if (!this.isdemande_valid_prof() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve() && !this.isAP_MODIFIEE()
+				&& !this.isDUREE_MODIFIEE() && !this.isDATE_MODIFIEE()
+				&& !this.isdemande_annul_eleve()) {
+			this.etat = this.etat | demande_modif_eleve;
+		} else {
+			throw new DVCTAPException("Erreur de modification de l'élève !");
+		}
+	}
+
+	public void modifieeDateParLeProfesseur() throws DVCTAPException {
+		if (!this.isdemande_valid_prof() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_annul_eleve()
+				&& !this.isdemande_refus_prof() && !this.isdemande_valid_prof()) {
+			this.etat = this.etat | DATE_MODIFIEE;
+		} else {
+			throw new DVCTAPException(
+					"Erreur de modification de date par le professeur !");
+		}
+	}
+
+	public void modifieeDureeParLeProfesseur() throws DVCTAPException {
+		if (!this.isdemande_valid_prof() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_annul_eleve()
+				&& !this.isdemande_refus_prof() && !this.isdemande_valid_prof()) {
+			this.etat = this.etat | DUREE_MODIFIEE;
+		} else {
+			throw new DVCTAPException(
+					"Erreur de modification de durée par le professeur !");
+		}
+	}
+
+	public void modifieeAPParLeProfesseur() throws DVCTAPException {
+		if (!this.isdemande_valid_prof() && !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_annul_eleve()
+				&& !this.isdemande_refus_prof() && !this.isdemande_valid_prof()) {
+			this.etat = this.etat | AP_MODIFIEE;
+		} else {
+			throw new DVCTAPException(
+					"Erreur de modification de l'accompagnement personnalisé par le professeur !");
+		}
+	}
+
+	public void rejeteeParEleve() throws DVCTAPException {
+		if (!this.isdemande_valid_prof()
+				&& !this.isdemande_refus_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& !this.isdemande_annul_eleve()
+				&& !this.isdemande_refus_prof()
+				&& !this.isdemande_valid_prof()
+				&& !this.isdemande_rejet_eleve()
+				&& (this.isAP_MODIFIEE() || this.isDATE_MODIFIEE() || this
+						.isDUREE_MODIFIEE())) {
+			this.etat = this.etat | demande_rejet_eleve;
+		} else {
+			throw new DVCTAPException("Erreur de rejet de l'élève !");
+		}
+	}
+
+	public void accepteeParEleve() throws DVCTAPException {
+		if (!this.isdemande_valid_prof()
+				&& !this.isdemande_refus_prof()
+				&& !this.isdemande_rejet_eleve()
+				&& !this.isdemande_annul_eleve()
+				&& !this.isdemande_refus_prof()
+				&& !this.isdemande_valid_prof()
+				&& !this.isdemande_accepter_eleve()
+				&& (this.isAP_MODIFIEE() || this.isDATE_MODIFIEE() || this
+						.isDUREE_MODIFIEE())) {
+			this.etat = this.etat | demande_accepter_eleve;
+		} else {
+			throw new DVCTAPException("Erreur d'acceptation de l'élève !");
+		}
 	}
 
 	@Override
