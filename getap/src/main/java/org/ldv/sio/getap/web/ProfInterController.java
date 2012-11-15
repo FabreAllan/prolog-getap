@@ -66,16 +66,28 @@ public class ProfInterController {
 	@RequestMapping(value = "index", method = RequestMethod.GET)
 	public void index(Model model) {
 		User me = UtilSession.getUserInSession();
-		model.addAttribute("listdctaps", manager.getAllDVCTAPByProfInterv(me));
+		model.addAttribute("mesdctaps", manager.getAllDVCTAPByEleve(me));
 		Long id = me.getId();
-		model.addAttribute("etat0", manager.getAllDVCTAPByEtat(0, id));
-		model.addAttribute("etat1", manager.getAllDVCTAPByEtat(1, id));
-		model.addAttribute("etat2", manager.getAllDVCTAPByEtat(2, id));
-		model.addAttribute("etat4", manager.getAllDVCTAPByEtat(4, id));
+		model.addAttribute("demande_creer_eleve",
+				manager.getAllDVCTAPByEtat(0, id));
+		model.addAttribute("demande_accepter_eleve",
+				manager.getAllDVCTAPByEtat(1, id));
+		model.addAttribute("demande_rejet_eleve",
+				manager.getAllDVCTAPByEtat(2, id));
+		model.addAttribute("demande_modif_eleve",
+				manager.getAllDVCTAPByEtat(4, id));
+		model.addAttribute("demande_annul_eleve",
+				manager.getAllDVCTAPByEtat(8, id));
 
-		model.addAttribute("etat16", manager.getAllDVCTAPByEtat(16, id));
-		model.addAttribute("etat32", manager.getAllDVCTAPByEtat(32, id));
-		model.addAttribute("etat64", manager.getAllDVCTAPByEtat(64, id));
+		model.addAttribute("demande_valid_prof",
+				manager.getAllDVCTAPByEtat(32, id));
+		model.addAttribute("demande_refus_prof",
+				manager.getAllDVCTAPByEtat(64, id));
+		model.addAttribute("DATE_MODIFIEE",
+				manager.getAllDVCTAPByEtat(1024, id));
+		model.addAttribute("DUREE_MODIFIEE",
+				manager.getAllDVCTAPByEtat(2048, id));
+		model.addAttribute("AP_MODIFIEE", manager.getAllDVCTAPByEtat(4096, id));
 		model.addAttribute("etatsup1000", manager.getAllDVCTAPModifByEtat(id));
 	}
 
